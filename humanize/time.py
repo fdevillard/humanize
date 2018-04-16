@@ -5,12 +5,16 @@
 ``contrib.humanize``."""
 
 import time
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date, timezone
 from .i18n import ngettext, gettext as _
+from . import Settings
 
 __all__ = ['naturaldelta', 'naturaltime', 'naturalday', 'naturaldate']
 
 def _now():
+    if Settings.TIMEZONE_SUPPORT:
+        return datetime.now(timezone.utc)
+
     return datetime.now()
 
 def abs_timedelta(delta):

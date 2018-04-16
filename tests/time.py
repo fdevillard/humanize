@@ -5,8 +5,8 @@
 
 from mock import patch
 
-from humanize import time
-from datetime import date, datetime, timedelta
+from humanize import time, Settings, naturaltime
+from datetime import date, datetime, timedelta, timezone
 from .base import HumanizeTestCase
 
 today = date.today()
@@ -286,3 +286,22 @@ class TimeTestCase(HumanizeTestCase):
         result_list = ('today', 'tomorrow', 'yesterday', someday_result, 'Jun 27 1982')
         self.assertManyResults(time.naturaldate, test_list, result_list)
 
+    def test_utc_supprt(self):
+        old_setting = Settings.TIMEZONE_SUPPORT
+        Settings.TIMEZONE_SUPPORT = True
+
+        today = datetime.now(timezone.utc)
+        ans = naturaltime(today - timedelta(days=1))
+        self.assertEqual(ans, "a day ago", "Should not send any exception")
+
+        Settings.TIMEZONE_SUPPORT = old_setting
+
+    def test_raise_exception_if_no_support(self):
+        old_setting = Settings.TIMEZONE_SUPPORT
+        Settings.TIMEZONE_SUPPORT = True
+
+        today = datetime.now()
+        with self.assertRaises(TypeError):
+            naturaltime(today)
+
+        Settings.TIMEZONE_SUPPORT = old_setting
